@@ -1,70 +1,79 @@
 package com.driver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.stereotype.Repository;
+
+import java.util.*;
+
+@Repository
 
 public class MovieRepository {
-    static Map<String, Movie> movies  = new HashMap<>();
-    static Map<String, Director> directors  = new HashMap<>();
-    static Map<Movie, Director> Pair = new HashMap<>();
+    private Map<String, Movie> moviesMap  = new HashMap<>();
+    private Map<String, Director> directorsMap  = new HashMap<>();
+    private Map<String, List<String>> Pair = new HashMap<>();
 
-    public static void addMovie(Movie movie) {
-        movies.put(Movie.getName(), movie);
+    public void saveMovie(Movie movie) {
+        moviesMap.put(movie.getName(), movie);
     }
 
-    public static void addDirector(Director director) {
-        directors.put(Movie.getName(), director);
+    public void saveDirector(Director director) {
+        directorsMap.put(director.getName(), director);
     }
 
-    public static void addMovieDirectorPair(String movieName, String directorName) {
-        Movie movie = movies.get(movieName);
-        Director director = directors.get(directorName);
-        Pair.put(movie, director);
+    public void saveMovieDirectorPair(String movie, String director) {
+        List<String> currMovieByDirector = new ArrayList<>();
+        if(Pair.containsKey(director))
+            currMovieByDirector = Pair.get(director);
+
+        currMovieByDirector.add(movie);
+        Pair.put(director, currMovieByDirector);
     }
 
-    public static Movie getMovieByName(String name) {
-        return movies.get(name);
+    public Movie findMovie(String name) {
+        return moviesMap.get(name);
     }
 
-    public static Director getDirectorByName(String name) {
-        return directors.get(name);
+    public Director findDirector(String name) {
+        return directorsMap.get(name);
     }
 
-    public static List<String> getMoviesByDirectorName(String directorName) {
+    public List<String> getMoviesByDirectorName(String directorName) {
         List<String> movieNames = new ArrayList<>();
-        for(String name : movies.keySet()){
-            if(directors.get(name).equals(directorName)){
-                movieNames.add(name);
-            }
-        }
+        if(Pair.containsKey(directorName)) movieNames = Pair.get(directorName);
         return movieNames;
     }
 
-    public static List<Movie> findAllMovies() {
-        List<Movie> allMovies = new ArrayList<>();
-        for(String name : movies.keySet()){
-            allMovies.add(movies.get(name));
-        }
-        return allMovies;
+    public List<String> findAllMovies() {
+        return new ArrayList<>(moviesMap.keySet());
     }
 
-    public static void deleteDirectorByName(String directorName) {
-        for(String name : directors.keySet()){
+    public void deleteDirectorByName(String directorName) {
+        for(String name : directorsMap.keySet()){
             if(name.equals(directorName)){
-                directors.remove(name);
-                movies.remove(name);
+                directorsMap.remove(name);
+                moviesMap.remove(name);
             }
         }
     }
 
-    public static void deleteAllDirectors() {
-        for(String name : directors.keySet()){
-            directors.remove(name);
-            if(movies.containsKey(name)){
-                movies.remove(name);
+    public void deleteAllDirectors() {
+        for(String name : directorsMap.keySet()){
+            directorsMap.remove(name);
+            if(moviesMap.containsKey(name)){
+                moviesMap.remove(name);
             }
         }
+    }
+
+    public void removeDirector(String director) {
+        directorsMap.remove(director);
+        Pair.remove(director);
+    }
+
+    public void removeMovie(String movieName) {
+        moviesMap.remove(movieName);
+    }
+
+    public List<String> detAllDirector() {
+        return new ArrayList<>(directorsMap.keySet());
     }
 }
